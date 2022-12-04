@@ -1,4 +1,4 @@
-# Implementing Shor's Algorithm in Three Separate Quantum Programming Languages
+# Implementing Shor's Algorithm with Qiskit, Q#, and cQASM
 
 This project includes three implementations of [Shor's Algorithm](https://quantum-computing.ibm.com/composer/docs/iqx/guide/shors-algorithm), a widely popular and widely documented quantum algorithm for prime factorization of integers developed in 1994 by [Peter Shor](https://www.youtube.com/watch?v=6qD9XElTpCE&vl=en-US), an American professor of applied mathematics at MIT. One implementation uses [Qiskit](https://qiskit.org), another uses [cQASM from Quantum Inspire](https://www.quantum-inspire.com/kbase/cqasm/), and the last one uses [Q# from Microsoft](https://learn.microsoft.com/en-us/azure/quantum/overview-what-is-qsharp-and-qdk).
 
@@ -8,13 +8,13 @@ Below is an overview of the motivation for this project, the algorithm itself, a
 
 ## Why implement Shor's algorithm?
 
-Peter Shor is essentially a rockstar in the QC world, so rather than diving into newer, more obscure quantum algorithms like the [Variational Quantum Eigensolver (VQE) algorithm](https://arxiv.org/abs/1304.3061) or the [Quantum Approximate Optimization Algorithm (QAOA)](https://arxiv.org/abs/1411.4028) for the final project &mdash; which are certainly interesting algorithms but offer less clear documentation &mdash; I wanted to come out of this Quantum Computing course with a strong understanding of one of the &mdash; if not _the_ &mdash; most popular quantum algorithms and a clear idea of how it threatens modern cryptography. More than that, prior to this project I had not worked with Q# or cQASM, so this opened my eyes to the ins and outs of other quantum programming languages apart from the Qiskit SDK for Python which I had prior experience with.
+Peter Shor is essentially a rockstar in the quantum computing world, so rather than diving into newer, more obscure quantum algorithms (which I was tempted to do) like the [Variational Quantum Eigensolver (VQE) algorithm](https://arxiv.org/abs/1304.3061) or the [Quantum Approximate Optimization Algorithm (QAOA)](https://arxiv.org/abs/1411.4028) for the CS 8395 final project &mdash; which are certainly interesting algorithms but offer less clear documentation &mdash; I wanted to come out of this Quantum Computing course with a strong understanding of one of the &mdash; if not _the_ &mdash; most popular quantum algorithms and a clear idea of **how** it threatens modern cryptography. More than that, prior to this project I had not worked with Microsoft's Q# or Quantum Inspire's cQASM, so this opened my eyes to the ins and outs of other quantum programming languages apart from the Qiskit SDK for Python with which I had prior experience.
 
 ## Overview of Shor's Algorithm
 
-In short (rather, in _Shor_), Shor's Algorithm offers a method of efficiently factoring large psuedoprime integers into their prime factors using quantum computing. The implications of this algorithm are drastic considering the security of modern public key infrastructure (PKI) relies on the hardness of that factorization. PKI is used all over the place, whether in digital signatures for verifying the integrity of transmitted messages, in setting up websites with SSL certificates for encrypted connections, in authenticating members of a Windows domain network against Active Directory with Active Directory Certificate Services (AD CS), and a lot more. If the prime factorization on which PKI relies for security guarantees is cracked, there goes most of our online security - that's why Shor's Algorithm is worth studying.
+In short (rather, in _Shor_), Shor's Algorithm offers a method of efficiently factoring large psuedoprime integers into their prime factors using quantum computing. The implications of this algorithm are drastic considering the security of modern public key cryptography, or asymmetric cryptography, relies on the hardness of that factorization. Asymmetric cryptography (e.g., the RSA cryptosystem [published in 1977](https://dl.acm.org/doi/abs/10.1145/357980.358017)) is used all over the place, whether in digital signatures for verifying the integrity of transmitted messages, in SSL/TLS for protecting data integrity and confidentiality in transit, in authenticating members of a Windows domain network against Active Directory with Active Directory Certificate Services (AD CS), in banking, in telecommunications, in e-commerce, and more. If the prime factorization on which asymmetric cryptography relies for its security guarantees is cracked, there goes most of our online security. That's why Shor's Algorithm is worth studying.
 
-## Number Theory
+### Number Theory
 
 The approach taken to finding the prime factors of large integers in classical computing essentially just comes down to iteratively guessing factors and continuing as long as the guesses are wrong.
 
@@ -22,13 +22,15 @@ With Shor's algorithm, we're also guessing, but the approach is a bit different.
 
 With Shor's algorithm, we aren't interested necessarily in directly guessing the factors of the large number _N_. Thanks to [Euclid's algorithm for finding common factors of two numbers](https://www.khanacademy.org/computing/computer-science/cryptography/modarithmetic/a/the-euclidean-algorithm), we can guess integers that simply share factors with N. If we used Euclid's algorithm to find a common factor _f1_ between a guessed integer _g_ and the large number _N_, then it's game over (in a good way), since you can just divide _N_ by that common factor _f1_ to get the _other factor_ _f2_; those two factors are all you need to break the encryption. However, it's _very_ unlikely that your randomly guessed number _g_ will actually share a factor with _N_ considering the *N*s used for modern encryption are massive numbers.
 
-This is where that bad-guess-to-good-guess transformation comes into play. The transformation is based on a simple fact in mathematics. For any two integers _a_ and _b_ that _do not share a factor_ (e.g. our bad guess _g_ and the large integer _N_), some power _p_ of _a_ will certainly produce some multiple _m_ of _b_ plus 1.
+This is where that bad-guess-to-good-guess transformation comes into play. The transformation is based on a simple fact in mathematics. For any two **coprime** integers _a_ and _b_ that _do not share a factor_ (e.g. our bad guess _g_ and the large integer _N_), some power _p_ of _a_ will certainly produce some multiple _m_ of _b_ plus 1.
 
 $$a^p = m * b + 1$$
 
 So to put this into context with our (likely bad) guess _g_ and large number _N_, we can be certain that:
 
 $$g^p = m * N + 1$$
+
+for some integer _m_.
 
 Now, the fun mathy part comes from subtracting the 1 from both sides to get
 
@@ -42,11 +44,11 @@ Those two factors on the left are exactly the "good" guesses that Shor's algorit
 $$g \implies g^{p/2} \plusmn 1 = m * N$$
 describes the transformation.
 
-Now, since the right side is not just _N_, but _m _ N*, the two factors on the left (let's call them *a* and *b* from left to right) may be *multiples\* of factors of N rather than factors of N directly.
+Now, since the right side is not just _N_, but _m_ * *N*, the two factors on the left (let's call them *a* and *b* from left to right) may be *multiples\* of factors of N rather than factors of N directly.
 
 ### 3 Problems
 
-There are 3 problems with the equation
+There are three problems with the equation
 $$(g^{p/2} + 1)*(g^{p/2} - 1) = a * b = m * N$$
 
 that necessitate the use of quantum computing for the implementation of this algorithm.
@@ -60,13 +62,14 @@ or _b_ being a factor of _N_. Which means, 37.5% of the time, $g^{p/2} \plusmn 1
 
 Third, we need to find _p_. That is, we need to know how many times to multiply our guess _g_ by itself to get a multiple _m_ of _N_ plus 1. This takes a ton of time on classical computers.
 
-## The Algorithm
+### The Algorithm
 
 To find the power _p_ such that
 $$ g^{p/2} \plusmn 1 = m * N$$
 we need to set up a quantum computer that takes in an integer *x* as input, raises our initial bad guess *g* to the power of *x*, and keeps track of both *x* and the value of $g^x$. The computer should then use the value of $g^x$ and calculate how much bigger than a multiple (*m*) of $N$ it is, i.e.
 $$r = (g^x) \text{ mod } (m * N) $$
-Remember that we want the remainder to be 1 (from the equation above $g^p = m * N + 1$).
+where modulus arithmetic tells us that $r$ is just the remainder after dividing $g^x$ by $m*N$.
+Remember that we want the remainder $r$ to be 1 (from the equation above $g^p = m * N + 1$).
 
 Obviously the above approach can be handled with a classical computer assuming we're trying one value of the input _x_ at a time. However, with a quantum computer, we can provide a superposition of many values of _x_ as the input to the quantum algorithm, and the computation will run simultaneously on all of those values. This computation would result first in the superposition of all corresponding values of $g^x$ for each _x_ in the input superposition. Then, the next step should take _that_ superposition of all $g^x$ and compute the superposition of all corresponding _remainders_ $r$ where each $r_i$ is
 $$r_i = (g^x)_i \text{ mod } (m * N) $$
@@ -109,31 +112,35 @@ Once the frequency $f = \frac{1}{p}$ is obtained from the Quantum Fourier Transf
 
 $$\frac{1}{\frac{1}{p}} = p$$
 
-And now, referring back to the 3 problems from before, as long as $p$ is even, and as long as $g^{\frac{p}{2}} \plusmn 1$ is _not_ directly a multiple of $N$, then $g^{\frac{p}{2}} \plusmn 1$ shares factors with $N$. If that's the case, we can use Euclid's algorithm to _find_ those factors $a$ and $b$ which are ultimately the factors providing the security for public key infrastructure.
+And now, referring back to the 3 problems from before, as long as $p$ is even, and as long as
+$$g^{\frac{p}{2}} \plusmn 1$$
+is _not_ directly a multiple of $N$, then it shares factors with $N$. If that's the case, we can use Euclid's algorithm to _find_ those factors $a$ and $b$ which are ultimately the factors providing the security for public key infrastructure.
 
-# Implementation in Qiskit
-
-The Qiskit implementation of Shor's algorithm can be found in this folder's [main.py](main.py). The implementation is documented in more detail in the [official Qiskit documentation](https://qiskit.org/textbook/ch-algorithms/shor.html).
 
 ## Subproblems
 
-As discussed in the above outline of the theory underlying Shor's algorithm, we'll need to address a few subproblems to implement the algorithm in Qiskit.
+As discussed in the [outline](../README.md#overview-of-shors-algorithm) of the theory underlying Shor's algorithm, we must address a few subproblems to implement the algorithm.
 
 ### Period Finding
 
-First, we'll need to solve the **period finding problem**, i.e., we need to find the power $p$ such that our guess $g$ raised to the power $p$ gives a multiple $m$ of the large number $N$ plus 1, or
-$$ g^p = m \* N + 1$$
+First, we need to solve the **period finding problem**, i.e., we need to find the power $p$ such that our guess $g$ raised to the power $p$ gives a multiple $m$ of the large number $N$ plus 1, or
+
+$$ g^p = m * N + 1$$
 
 With the periodic function
 $$f(x) = g^x \text{ mod } N$$
-$g$ is less than $N$ and the two have no common factors (i.e. $g$ is a "bad guess" as described previously). The _period_ $p$ is the smallest non-zero integer such that
+$g$ is less than $N$ and the two have no common factors (i.e. $g$ is a "bad guess" as described in the algorithm overview). The period $p$ is the smallest non-zero integer such that
 $$g^p = m * N + 1 \implies g^p \text{ mod } N = 1$$
 
-### A quick note on [Quantum Phase Estimation](https://qiskit.org/textbook/ch-algorithms/quantum-phase-estimation.html)
+### [Quantum Phase Estimation](https://qiskit.org/textbook/ch-algorithms/quantum-phase-estimation.html)
 
-First, since quantum phase estimation is defined on a unitary operator $\hat{U}$, let's define a unitary operator. As documented [here](http://vergil.chemistry.gatech.edu/notes/quantrev/node17.html), a unitary operator $\hat{U}$ is "some operator that preserves the **lengths** and **angles** between vectors and can be thought of as a type of rotation operator in abstract vector space." Or, in shorter mathematical terms, a unitary operator U is an operator whose inverse is equal to its adjoint: $\hat{U}^{-1} = \hat{U}^{\dagger}$. Matrix inversion is discussed in more detail [here](https://www.mathsisfun.com/algebra/matrix-inverse.html) and matrix adjoints (AKA conjugate transposes of matrices) are discussed in more detail [here](https://en.wikipedia.org/wiki/Conjugate_transpose).
+First, since quantum phase estimation is defined on a unitary operator $\hat{U}$, let's define a unitary operator. As documented [here](http://vergil.chemistry.gatech.edu/notes/quantrev/node17.html), a unitary operator $\hat{U}$ is "some operator that preserves the **lengths** and **angles** between vectors and can be thought of as a type of rotation operator in abstract vector space." Or, in shorter mathematical terms, a unitary operator U is an operator whose inverse is equal to its adjoint: 
 
-As documented at the link above, quantum phase estimation is "one of the most important subroutines in quantum computing." Used by many different quantum algorithms (like Shor's), its objective is as follows: Given a unitary operator $U$ the algorithm estimates $\theta$ in $U| \psi\rangle = e^{2 \pi i \theta }| \psi\rangle$, where $| \psi \rangle$ is an eigenvector and $e^{2 \pi i \theta }$ is the corresponding eigenvalue of that eigenvector. In short, we're estimating eigenvalues of a unitary operator. Since $U$ is unitary, all of its eigenvalues have a norm (length) of 1.
+$$\hat{U}^{-1} = \hat{U}^{\dagger}$$
+ 
+Matrix inversion is discussed in more detail [here](https://www.mathsisfun.com/algebra/matrix-inverse.html) and matrix adjoints (AKA conjugate transposes of matrices) are discussed in more detail [here](https://en.wikipedia.org/wiki/Conjugate_transpose).
+
+As documented at the link above, **quantum phase estimation** is "one of the most important subroutines in quantum computing." Used by many different quantum algorithms (like Shor's), its objective is as follows: Given a unitary operator $U$ (previously denoted with $\hat{U}$) the algorithm estimates $\theta$ in $U| \psi\rangle = e^{2 \pi i \theta }| \psi\rangle$, where $| \psi \rangle$ is an eigenvector and $e^{2 \pi i \theta }$ is the corresponding eigenvalue of that eigenvector. In short, we're estimating eigenvalues of a unitary operator. Since $U$ is unitary, all of its eigenvalues have a norm (length) of 1.
 
 So, Shor's solution to the **period finding problem** was to use quantum phase estimation on the unitary operator:
 $$U| y \rangle = | gy \text{ mod } N \rangle$$
@@ -177,6 +184,7 @@ where again, $s$ is some random integer between 0 and $p - 1$. This corresponds 
 
 We also need to apply the quantum fourier transform to our "superposition of superpositions" as described in the above section such that we can find a frequency ($\frac{1}{p}$) of our superposition obtained from measuring the initial remainder computation.
 
+
 ## Three Implementations
 
 ### Implementing Shor's Algorithm with [Qiskit](https://qiskit.org/) from [IBM Research](https://research.ibm.com/)
@@ -187,3 +195,12 @@ You can find the Qiskit implementation in the [qiskit](qiskit/README.md) directo
 ### Implementing Shor's Algorithm with [cQASM from Quantum Inspire](https://www.quantum-inspire.com/kbase/cqasm/)
 
 ### Implementing Shor's Algorithm with [Q# from Microsoft](https://learn.microsoft.com/en-us/azure/quantum/overview-what-is-qsharp-and-qdk)
+
+## Comparing Qiskit, Q#, & cQASM
+### Speed 
+### Expressiveness
+### Comments
+### Exception Handling
+### Dependencies
+### Prebuilt Module Availabilities
+### Learning Curve 

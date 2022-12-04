@@ -18,3 +18,27 @@
 [QiskitShorSolver - solver.py:79 - factor() ] g^p - 1 = 7^2 - 1 = a * b = (g ^(p/2) - 1) * ((g ^ (p/2)) + 1) = (7 ^(2/2) - 1) * ((7 ^ (2/2)) + 1) 
 [QiskitShorSolver - solver.py:80 - factor() ] There is a high probability that the GCD of N=15 and either a=(g ^(p/2) - 1) or b=((g ^ (p/2)) + 1) is a proper factor of N
 [QiskitShorSolver - solver.py:80 - factor() ] There is a high probability that the GCD of N=15 and either a=(g ^(p/2) - 1) or b=((g ^ (p/2)) + 1) is a proper factor of N
+[QiskitShorSolver - solver.py:49 - factor() ] Attempt=1; guessed g=7
+[QiskitShorSolver - solver.py:49 - factor() ] Attempt=1; guessed g=7
+[QiskitShorSolver - solver.py:58 - factor() ] Getting phase phi = s / p from initial guess g = 7 in order to find period p
+[QiskitShorSolver - solver.py:58 - factor() ] Getting phase phi = s / p from initial guess g = 7 in order to find period p
+[QiskitShorSolver - solver.py:92 - factor() ] phase returned from Quantum Phase Estimation is 0. Re-attempting factorization.
+[QiskitShorSolver - solver.py:92 - factor() ] phase returned from Quantum Phase Estimation is 0. Re-attempting factorization.
+[QiskitShorSolver - solver.py:49 - factor() ] Attempt=2; guessed g=13
+[QiskitShorSolver - solver.py:49 - factor() ] Attempt=2; guessed g=13
+[QiskitShorSolver - solver.py:58 - factor() ] Getting phase phi = s / p from initial guess g = 13 in order to find period p
+[QiskitShorSolver - solver.py:58 - factor() ] Getting phase phi = s / p from initial guess g = 13 in order to find period p
+[QiskitShorSolver - solver.py:64 - factor() ] Phase = 0.75. Denominator should tell us the period p. 
+[QiskitShorSolver - solver.py:64 - factor() ] Phase = 0.75. Denominator should tell us the period p. 
+[QiskitShorSolver - solver.py:71 - factor() ] The period p = 4
+[QiskitShorSolver - solver.py:71 - factor() ] The period p = 4
+[QiskitShorSolver - solver.py:72 - factor() ] g^p mod m * N = 1 => 13^4 mod m*15 = 1, implies: 
+[QiskitShorSolver - solver.py:72 - factor() ] g^p mod m * N = 1 => 13^4 mod m*15 = 1, implies: 
+[QiskitShorSolver - solver.py:73 - factor() ] (g^p - 1) mod N = (13^4 - 1) mod 15 = 0
+[QiskitShorSolver - solver.py:73 - factor() ] (g^p - 1) mod N = (13^4 - 1) mod 15 = 0
+[QiskitShorSolver - solver.py:77 - factor() ] p = 4 is even, continuing...
+[QiskitShorSolver - solver.py:77 - factor() ] p = 4 is even, continuing...
+[QiskitShorSolver - solver.py:78 - factor() ] g^p - 1 = 13^4 - 1 = a * b = (g ^(p/2) - 1) * ((g ^ (p/2)) + 1) = (13 ^(4/2) - 1) * ((13 ^ (4/2)) + 1) 
+[QiskitShorSolver - solver.py:78 - factor() ] g^p - 1 = 13^4 - 1 = a * b = (g ^(p/2) - 1) * ((g ^ (p/2)) + 1) = (13 ^(4/2) - 1) * ((13 ^ (4/2)) + 1) 
+[QiskitShorSolver - solver.py:79 - factor() ] There is a high probability that the GCD of N=15 and either a=(g ^(p/2) - 1) or b=((g ^ (p/2)) + 1) is a proper factor of N
+[QiskitShorSolver - solver.py:79 - factor() ] There is a high probability that the GCD of N=15 and either a=(g ^(p/2) - 1) or b=((g ^ (p/2)) + 1) is a proper factor of N

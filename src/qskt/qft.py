@@ -2,11 +2,13 @@
 from qiskit import QuantumCircuit
 from math import pi
 from base import Base
+from qiskit.circuit.library import QFT
 
 class QuantumFourierTransform(Base):
 
     def __init__(self, name: str = 'QFT', verbose: bool = False):
         super().__init__(name, verbose=verbose)
+    
 
     def qft_dagger(self, n):
         """Apply N-qubit QFTdagger to the first n qubits of a circuit.
@@ -48,4 +50,33 @@ class QuantumFourierTransform(Base):
         # circuit a name and then return it 
         circuit.name = "QFT†"
         return circuit
+
+    def apply_qft(self, num_qubits: int = 1, use_qiskit_lib: bool = False ):
+        """ This circuit is explained very clearly by Abraham Asfaw in his 
+        lecture at https://www.youtube.com/watch?v=pq2jkfJlLmY.
+        
+        """
+        if use_qiskit_lib:
+            return QFT(num_qubits=num_qubits)
+        circuit = QuantumCircuit(num_qubits)
+        for qubit in range(num_qubits):
+            # For each qubit x_1, x_2, ... x_num_qubits 
+            # apply a hadamard to the qubit
+            circuit.h(qubit)
+            for other_qubit in range(qubit+1, num_qubits):
+                # then apply a series of phases/rotations
+                # using controlled phase / unitary rotation / UROT_k
+                # gate that will apply phase conditionally
+                # depending on control qubit.
+                
+                # apply UROT_k (unitary rotation)
+                circuit.cu1(
+                    pi / (2 ** (other_qubit - qubit)), # phase to apply 
+                    other_qubit, # control qubit
+                    qubit # target qubit 
+                )
+        return circuit
     
+if __name__ == "__main__": 
+    qft = QuantumFourierTransform()
+    qft.apply_qft(num_qubits=4).draw(filename='qft-4-qubits.jpg')

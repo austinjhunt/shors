@@ -35,22 +35,21 @@ class QiskitShor(Base):
         factor_found = False 
         factors = None 
         start = time.time()
-        if N % 2 == 0:
+        if N % 2 == 0: # handle even N
             attempts = 1
             factors = {'p': 2, 'q': N // 2}
             factor_found = True 
             end = time.time() 
             elapsed = round(end - start, 6)
         
-        np.random.seed(1)
-        while not factor_found:
+        np.random.seed(1) # seed random number generator 
+        while not factor_found: # continue until factor found 
             attempts += 1
-            self.info(f'Attempt: {attempts}')
-            g = randint(2, N)
-            self.info(f'Guessed random initial number g={g} between 1 and N={N}')
-            if gcd(g, N) != 1:
-                self.info(f'gcd(g,N)=gcd({g},{N}) != 1. Retrying.')
-                factors = {'p': g, 'q': N // g}
+            g = randint(2, N)  # 2 inclusive to N exclusive 
+            self.info(f'Attempt={attempts}; guessed g={g}')
+            _gcd = gcd(g, N)
+            if _gcd != 1: 
+                factors = {'p': _gcd, 'q': N // _gcd}
                 factor_found = True 
                 end = time.time() 
                 elapsed = round(end - start, 6)

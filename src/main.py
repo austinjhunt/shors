@@ -75,8 +75,8 @@ if __name__ == "__main__":
     driver = Driver(verbose=True)
     semiprimes_generator = SemiPrimeGenerator()
     semiprimes = semiprimes_generator.get_n_semiprimes(
-        num_semiprimes=50,
-        upper_bound=10000
+        num_semiprimes=20,
+        upper_bound=25
     )
     
     # run classic implementation 
@@ -85,8 +85,8 @@ if __name__ == "__main__":
         plot_results=True
     )
 
-    # run qiskit implementation
-    driver.run_qiskit_implementation(
-        semiprimes=[15],
-        plot_results=True
-    )
+    # # run qiskit implementation
+    # driver.run_qiskit_implementation(
+    #     semiprimes=[15],
+    #     plot_results=True
+    # )

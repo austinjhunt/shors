@@ -101,6 +101,7 @@ class QuantumPhaseEstimator(Base):
     def c_amodN(self, g: int = None, p: int = None, N: int = None):
         
         """  
+
         To create U^p where U is a unitary operator, we repeat the circuit p times. 
         This is specifically written to achieve controlled multiplication by g mod N.
         Where: 
@@ -112,9 +113,6 @@ class QuantumPhaseEstimator(Base):
         possible values of the power p, we are obtaining an output superposition of all 
         of the corresponding remainder values defined by r = g^p mod m*N, with N statically set as 15. 
         """
-        if gcd(g, N) != 1:
-            raise ValueError(f'g={g} and N={N} not coprime')
-
         # Create a circuit with 4 registers 
         # (a list of instructions bound to 4 registers)
         U = QuantumCircuit(4)
